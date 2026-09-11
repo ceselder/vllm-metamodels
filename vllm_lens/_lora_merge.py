@@ -276,7 +276,10 @@ def resolve_adapter(
             except Exception:  # noqa: BLE001
                 pass
         if m.startswith("model.") and not m.startswith("model.language_model."):
+            # multimodal wrappers serve the text stack under a prefix; both layouts seen across vLLM versions:
+            #   Qwen3_5ForConditionalGeneration: "language_model.model.layers.N.*" (vLLM 0.21) / "model.language_model.layers.N.*" (older)
             cands.append("model.language_model." + m[len("model."):])
+            cands.append("language_model." + m)
         hit = next((c for c in cands if c in by_hf), None)
         if hit is None:
             missing.append(m)
